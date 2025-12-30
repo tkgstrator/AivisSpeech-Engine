@@ -1,7 +1,7 @@
 ARG CUDA_VERSION=12.8.1
 
 # ===== ステージ1: ビルドステージ =====
-FROM nvidia/cuda:${CUDA_VERSION}runtime-ubuntu22.04 AS builder
+FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu22.04 AS builder
 
 # ビルドに必要な依存関係をインストール
 RUN \
@@ -31,7 +31,7 @@ RUN \
     uv sync --python 3.11 --frozen
 
 # ===== ステージ2: 本番実行ステージ =====
-FROM nvidia/cuda:13.1.0-runtime-ubuntu22.04
+FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu22.04
 
 # 本番環境に必要な最小限のパッケージのみをインストール
 RUN \
