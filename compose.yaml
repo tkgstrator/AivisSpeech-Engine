@@ -7,31 +7,9 @@ services:
     volumes:
       - ./AivisSpeech-Engine-Dev:/home/user/.local/share/AivisSpeech-Engine-Dev
     environment:
-      # - VV_WORKERS=1
-      - VV_WORKERS=4
-    #   - VV_MAX_REQUESTS=1000
+      - VV_WORKERS=1
       - VV_ENABLE_TRACING=0
-    command: ["gunicorn", "-c", "gunicorn_conf.py", "app_factory:app"]
-    # profiles:
-      # - dev
-
-  # # ===== 本番環境（Gunicorn + 複数ワーカー） =====
-  # aivis-prod:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./AivisSpeech-Engine-Dev:/home/user/.local/share/AivisSpeech-Engine-Dev
-  #   ports:
-  #     - 10102:10101
-  #   environment:
-  #     - VV_WORKERS=4
-  #     - VV_TIMEOUT=120
-  #     - VV_MAX_REQUESTS=1000
-  #   command: ["gunicorn", "-c", "gunicorn_conf.py", "app_factory:app"]
-  #   profiles:
-  #     - prod
-  #     - benchmark
+    # command: ["gunicorn", "-c", "gunicorn_conf.py", "app_factory:app"]
 
   # ===== 負荷テストツール（Locust） =====
   locust:
@@ -43,6 +21,4 @@ services:
     command: -f /mnt/locust/locustfile.py --host http://aivis:10101
     depends_on:
       - aivis
-    # profiles:
-    #   - benchmark
 
