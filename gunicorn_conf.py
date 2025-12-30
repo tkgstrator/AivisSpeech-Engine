@@ -28,8 +28,10 @@ loglevel = os.getenv("VV_LOG_LEVEL", "info")  # ログレベル
 # プロセス名
 proc_name = "aivisspeech-engine"
 
-# プリロード設定（メモリ効率化）
-preload_app = True
+# プリロード設定
+# False にすることで各ワーカーが独立してアプリを初期化
+# マルチワーカー環境での安定性を確保
+preload_app = False
 
 # 最大リクエスト数（メモリリーク対策）
 max_requests = int(os.getenv("VV_MAX_REQUESTS", "1000"))
