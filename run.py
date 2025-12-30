@@ -79,6 +79,10 @@ class Envs:
     cpu_num_threads: str | None
     env_preset_path: str | None
     disable_mutable_api: bool
+    workers: int
+    timeout_keep_alive: int
+    timeout_graceful_shutdown: int
+    limit_concurrency: int | None
 
 
 _env_adapter = TypeAdapter(Envs)
@@ -91,6 +95,10 @@ def read_environment_variables() -> Envs:
         cpu_num_threads=os.getenv("VV_CPU_NUM_THREADS"),
         env_preset_path=os.getenv("VV_PRESET_FILE"),
         disable_mutable_api=decide_boolean_from_env("VV_DISABLE_MUTABLE_API"),
+        workers=int(os.getenv("VV_WORKERS", "1")),
+        timeout_keep_alive=int(os.getenv("VV_TIMEOUT_KEEP_ALIVE", "5")),
+        timeout_graceful_shutdown=int(os.getenv("VV_TIMEOUT_GRACEFUL_SHUTDOWN", "30")),
+        limit_concurrency=int(os.getenv("VV_LIMIT_CONCURRENCY")) if os.getenv("VV_LIMIT_CONCURRENCY") else None,
     )
     return _env_adapter.validate_python(asdict(envs))
 
@@ -167,6 +175,10 @@ class _CLIArgs:
     preset_file: Path | None
     disable_mutable_api: bool
     disable_sentry: bool
+    workers: int
+    timeout_keep_alive: int
+    timeout_graceful_shutdown: int
+    limit_concurrency: int | None
     # 以下は極力 VOICEVOX ENGINE との差分を最小限にするための互換用
     # 対応する引数は AivisSpeech Engine では常に無効化されている
     voicevox_dir: Path | None = None  # 常に None
@@ -322,12 +334,55 @@ def read_cli_arguments(envs: Envs) -> _CLIArgs:
         help="Sentry によるエラーログ収集を無効化します。",
     )
 
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=envs.workers,
+        help=(
+            "ワーカープロセス数を指定します。本番環境では CPU コア数 * 2 + 1 を推奨。"
+            "指定しない場合、環境変数 VV_WORKERS の値が使われます（デフォルト: 1）。"
+        ),
+    )
+
+    parser.add_argument(
+        "--timeout-keep-alive",
+        type=int,
+        default=envs.timeout_keep_alive,
+        help=(
+            "Keep-Alive 接続のタイムアウト時間（秒）を指定します。"
+            "指定しない場合、環境変数 VV_TIMEOUT_KEEP_ALIVE の値が使われます（デフォルト: 5）。"
+        ),
+    )
+
+    parser.add_argument(
+        "--timeout-graceful-shutdown",
+        type=int,
+        default=envs.timeout_graceful_shutdown,
+        help=(
+            "グレースフルシャットダウンのタイムアウト時間（秒）を指定します。"
+            "指定しない場合、環境変数 VV_TIMEOUT_GRACEFUL_SHUTDOWN の値が使われます（デフォルト: 30）。"
+        ),
+    )
+
+    parser.add_argument(
+        "--limit-concurrency",
+        type=int,
+        default=envs.limit_concurrency,
+        help=(
+            "同時リクエスト数の上限を指定します。過負荷を防ぐために設定します。"
+            "指定しない場合、環境変数 VV_LIMIT_CONCURRENCY の値が使われます（デフォルト: 無制限）。"
+        ),
+    )
+
     args_dict = vars(parser.parse_args())
 
     # NOTE: 複数個の同名引数に基づいてリスト化されるため `CLIArgs` で複数形にリネームされている
     # args_dict["voicelib_dirs"] = args_dict.pop("voicelib_dir")
     # args_dict["runtime_dirs"] = args_dict.pop("runtime_dir")
     args_dict["allow_origins"] = args_dict.pop("allow_origin")
+    args_dict["timeout_keep_alive"] = args_dict.pop("timeout_keep_alive")
+    args_dict["timeout_graceful_shutdown"] = args_dict.pop("timeout_graceful_shutdown")
+    args_dict["limit_concurrency"] = args_dict.pop("limit_concurrency")
 
     # --host に 127.0.0.1 が指定されたとき、Windows 上で localhost でアクセスした際に
     # IPv6 でバインドされないことによる接続遅延を防ぐために、代わりに localhost を指定し IPv4 と IPv6 の両方でバインドする
@@ -512,7 +567,18 @@ def main() -> None:
 
         # AivisSpeech Engine サーバーを起動
         # NOTE: デフォルトは ASGI に準拠した HTTP/1.1 サーバー
-        uvicorn.run(app, host=args.host, port=args.port, log_config=LOGGING_CONFIG)
+        # 本番環境では workers > 1 を指定することで複数プロセスで負荷分散が可能
+        uvicorn.run(
+            app,
+            host=args.host,
+            port=args.port,
+            workers=args.workers,
+            log_config=LOGGING_CONFIG,
+            timeout_keep_alive=args.timeout_keep_alive,
+            timeout_graceful_shutdown=args.timeout_graceful_shutdown,
+            limit_concurrency=args.limit_concurrency,
+            access_log=True,
+        )
 
     except Exception as e:
         # 起動時にエラーが発生した場合、スタックトレースを取得した上で起動失敗イベントを AivisHub へ通知する

@@ -8,6 +8,7 @@ dependencies = [
     "jinja2>=3.1.6,<4",
     "python-multipart>=0.0.20,<0.0.21",
     "uvicorn>=0.34.0,<0.35",
+    "gunicorn>=23.0.0,<24",
     "soundfile>=0.13.1,<0.14",
     "pyyaml>=6.0.1,<7",
     "pyworld-prebuilt>=0.3.5.post2,<0.4",
@@ -58,21 +59,14 @@ dev = [
     "ruff>=0.11.1,<0.12",
     "typos>=1.31.1,<2",
 ]
-build = [
-    "pyinstaller>=5.13,<6",
-    "pip-licenses==5.0.0",
-    "taskipy>=1.12.2,<2",
-]
+build = ["pyinstaller>=5.13,<6", "pip-licenses==5.0.0", "taskipy>=1.12.2,<2"]
 
 [tool.ruff]
 target-version = "py311"
 
 [tool.uv]
 package = false
-default-groups = [
-    "dev",
-    "build",
-]
+default-groups = ["dev", "build"]
 
 [tool.uv.sources]
 style-bert-vits2 = { git = "https://github.com/tsukumijima/Style-Bert-VITS2", rev = "785a5caf2b155c75ed7ad12522c7814bb6d8204a" }
@@ -85,20 +79,22 @@ build-backend = "hatchling.build"
 [tool.ruff.lint]
 select = ["E", "F", "B", "I", "W", "UP", "D", "D213"]
 ignore = [
-  "E501", # line-too-long
-  "D200", # AivisSpeech Engine ではコーディングスタイルに合わないため運用しない
-  "D202", # AivisSpeech Engine ではコーディングスタイルに合わないため運用しない
-  "D205", # AivisSpeech Engine ではコーディングスタイルに合わないため運用しない
-  "D400", # missing-trailing-period。日本語の「。」に対応していないため。
-  "D403", # first-word-uncapitalized。日本語とは無関係であるため。日英混合時の挙動に一貫性が無いため。
+    "E501", # line-too-long
+    "D200", # AivisSpeech Engine ではコーディングスタイルに合わないため運用しない
+    "D202", # AivisSpeech Engine ではコーディングスタイルに合わないため運用しない
+    "D205", # AivisSpeech Engine ではコーディングスタイルに合わないため運用しない
+    "D400", # missing-trailing-period。日本語の「。」に対応していないため。
+    "D403", # first-word-uncapitalized。日本語とは無関係であるため。日英混合時の挙動に一貫性が無いため。
 ]
 unfixable = [
-  "F401", # unused-import
-  "F841"  # unused-variable
+    "F401", # unused-import
+    "F841", # unused-variable
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"test/**/test_*.py" = ["D103"] # undocumented-public-function。pytest の対象 test_*() が D103 の対象になり、関数名から内容が自明でも docstring を強制されるため。
+"test/**/test_*.py" = [
+    "D103",
+] # undocumented-public-function。pytest の対象 test_*() が D103 の対象になり、関数名から内容が自明でも docstring を強制されるため。
 
 [tool.ruff.lint.isort]
 known-first-party = ["voicevox_engine"]
@@ -123,13 +119,13 @@ warn_unused_ignores = false
 filterwarnings = ["ignore::pydantic.warnings.PydanticDeprecatedSince20"]
 
 [tool.typos.default.extend-words]
-datas = "datas" # PyInstaller's argument
-Collet = "Collet"  # CUDA EULA
+datas = "datas"   # PyInstaller's argument
+Collet = "Collet" # CUDA EULA
 
 [tool.typos.files]
 extend-exclude = [
-  "resources",
-  "test/e2e/single_api/engine_info/__snapshots__/test_engine_manifest/test_get_engine_manifest_200.json",
-  "poetry.*",
-  "README.md",
+    "resources",
+    "test/e2e/single_api/engine_info/__snapshots__/test_engine_manifest/test_get_engine_manifest_200.json",
+    "poetry.*",
+    "README.md",
 ]

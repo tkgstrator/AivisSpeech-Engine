@@ -1,5 +1,6 @@
 """FastAPI ミドルウェア"""
 
+import os
 import re
 from collections.abc import Awaitable, Callable
 
@@ -16,6 +17,17 @@ def configure_middlewares(
     app: FastAPI, cors_policy_mode: CorsPolicyMode, allow_origin: list[str] | None
 ) -> FastAPI:
     """FastAPI のミドルウェアを設定する。"""
+
+    # 本番環境用のトレーシングとメトリクスミドルウェアを追加（環境変数で有効化）
+    if os.getenv("VV_ENABLE_TRACING", "0") == "1":
+        from voicevox_engine.app.middlewares.tracing import (
+            PerformanceMetricsMiddleware,
+            RequestTracingMiddleware,
+        )
+
+        app.add_middleware(PerformanceMetricsMiddleware)
+        app.add_middleware(RequestTracingMiddleware)
+        logger.info("Request tracing and performance metrics enabled")
 
     # 未処理の例外が発生するとCORSMiddlewareが適用されない問題に対するワークアラウンド
     # ref: https://github.com/VOICEVOX/voicevox_engine/issues/91

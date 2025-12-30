@@ -16,6 +16,7 @@ from voicevox_engine.app.openapi_schema import (
 from voicevox_engine.app.routers.aivm_models import generate_aivm_models_router
 from voicevox_engine.app.routers.character import generate_character_router
 from voicevox_engine.app.routers.engine_info import generate_engine_info_router
+from voicevox_engine.app.routers.health import router as health_router
 from voicevox_engine.app.routers.library import generate_library_router
 from voicevox_engine.app.routers.morphing import generate_morphing_router
 from voicevox_engine.app.routers.portal_page import generate_portal_page_router
@@ -112,6 +113,8 @@ def generate_app(
     )
     app.include_router(generate_engine_info_router(core_version_list, engine_manifest))
     app.include_router(generate_portal_page_router(engine_manifest.name))
+    # ヘルスチェックとメトリクスのエンドポイントを追加（本番環境用）
+    app.include_router(health_router)
 
     app = simplify_operation_ids(app)
     app = configure_openapi_schema(
