@@ -1,5 +1,7 @@
+ARG CUDA_VERSION=12.8.1
+
 # ===== ステージ1: ビルドステージ =====
-FROM nvidia/cuda:13.1.0-runtime-ubuntu22.04 AS builder
+FROM nvidia/cuda:${CUDA_VERSION}runtime-ubuntu22.04 AS builder
 
 # ビルドに必要な依存関係をインストール
 RUN \
