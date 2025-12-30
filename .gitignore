@@ -159,3 +159,6 @@ cython_debug/
 ._*
 
 *.wav
+
+# Cached
+AivisSpeech-Engine-Dev/**

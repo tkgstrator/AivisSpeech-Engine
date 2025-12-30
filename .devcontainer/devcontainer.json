@@ -1,0 +1,78 @@
+{
+    "name": "Aivis Engine",
+    "dockerComposeFile": [
+        "compose.yaml"
+    ],
+    "service": "aivis",
+    "workspaceFolder": "/home/vscode/app",
+    "shutdownAction": "stopCompose",
+    "remoteUser": "vscode",
+    "mounts": [
+        "source=${env:HOME}/home/vscode/.ssh,target=/.ssh,type=bind,consistency=cached,readonly"
+    ],
+    "remoteEnv": {
+        "WAKATIME_API_KEY": "${localEnv:WAKATIME_API_KEY}",
+        "UV_LINK_MODE": "copy"
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "2.52.0"
+        },
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "configureZshAsDefaultShell": true
+        },
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+            "moby": false,
+            "dockerDashComposeVersion": "v2"
+        },
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "moby": false,
+            "dockerDashComposeVersion": "v2"
+        },
+        "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {},
+        "ghcr.io/devcontainers/features/rust:1": {
+            "version": "latest"
+        }
+    },
+    "postAttachCommand": "/bin/sh .devcontainer/postAttachCommand.sh",
+    "postCreateCommand": "/bin/sh .devcontainer/postCreateCommand.sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "EditorConfig.EditorConfig",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "PKief.material-icon-theme",
+                "antfu.file-nesting",
+                "bierner.markdown-mermaid",
+                "bierner.markdown-preview-github-styles",
+                "charliermarsh.ruff",
+                "eamodio.gitlens",
+                "jebbs.markdown-extended",
+                "ms-python.python",
+                "redhat.vscode-yaml",
+                "spmeesseman.vscode-taskexplorer",
+                "tamasfe.even-better-toml",
+                "vsls-contrib.gitdoc"
+            ],
+            "settings": {
+                "betterTypeScriptErrors.prettify": true,
+                "debug.internalConsoleOptions": "neverOpen",
+                "diffEditor.diffAlgorithm": "advanced",
+                "diffEditor.experimental.showMoves": true,
+                "diffEditor.renderSideBySide": false,
+                "editor.formatOnPaste": true,
+                "editor.guides.bracketPairs": "active",
+                "editor.codeActionsOnSave": {
+                    "quickfix.biome": "explicit",
+                    "source.organizeImports.biome": "explicit"
+                },
+                "editor.formatOnSave": true,
+                "files.watcherExclude": {
+                    ".venv": true
+                },
+                "scm.defaultViewMode": "tree"
+            }
+        }
+    }
+}

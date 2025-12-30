@@ -1,0 +1,10 @@
+services:
+  aivis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/home/vscode/app:cached
+      - ../AivisSpeech-Engine-Dev:/home/vscode/.local/share/AivisSpeech-Engine-Dev:cached
+    tty: true
+    stdin_open: true

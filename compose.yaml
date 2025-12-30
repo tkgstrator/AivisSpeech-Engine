@@ -1,0 +1,7 @@
+services:
+  aivis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./AivisSpeech-Engine-Dev:/root/.local/share/AivisSpeech-Engine-Dev
